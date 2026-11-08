@@ -24,7 +24,7 @@ jobs:
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-        run: databricks bundle deploy --target dev
+        run: databricks bundle deploy --target dev --auto-approve
 
       # 2. Validation Branch Deployment
       - name: Deploy to Validation
@@ -32,7 +32,7 @@ jobs:
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-        run: databricks bundle deploy --target validation
+        run: databricks bundle deploy --target validation --auto-approve
 
       # 3. Main (Production) Branch Deployment
       - name: Deploy to Production
@@ -40,4 +40,4 @@ jobs:
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-        run: databricks bundle deploy --target prod
+        run: databricks bundle deploy --target prod --auto-approve
