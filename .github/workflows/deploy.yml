@@ -1,0 +1,42 @@
+name: Databricks CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - dev
+      - validation
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Databricks CLI
+        uses: databricks/setup-databricks@main
+
+      # 1. Dev Branch par push hone par 'dev' target par deploy hoga
+      - name: Deploy to Dev
+        if: github.ref == 'refs/heads/dev'
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: databricks bundle deploy --target dev
+
+      # 2. Validation Branch par push hone par 'validation' target par deploy hoga
+      - name: Deploy to Validation
+        if: github.ref == 'refs/heads/validation'
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: databricks bundle deploy --target validation
+
+      # 3. Main (Production) Branch par push/merge hone par 'prod' target par deploy hoga
+      - name: Deploy to Production
+        if: github.ref == 'refs/heads/main'
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: databricks bundle deploy --target prod

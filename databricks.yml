@@ -1,0 +1,35 @@
+bundle:
+  name: hospital_pipeline_3
+
+include:
+  - resources/*.yml
+
+# 1. Global Variables define karein (Default value ke sath)
+variables:
+  target_catalog:
+    description: "The Unity Catalog to use for this environment"
+    default: "dev"
+
+# 2. Alag-alag Targets (Environments) define karein
+targets:
+  # --- DEV ENVIRONMENT (Sandbox) ---
+  dev:
+    default: true
+    workspace:
+      host: https://dbc-6e436782-452f.cloud.databricks.com
+    variables:
+      target_catalog: "dev_catalog" # Dev ke liye catalog
+
+  # --- VALIDATION ENVIRONMENT (Staging) ---
+  validation:
+    workspace:
+      host: https://<validation-workspace-host>.cloud.databricks.com
+    variables:
+      target_catalog: "val_catalog" # Validation ke liye catalog
+
+  # --- PRODUCTION ENVIRONMENT (Live) ---
+  prod:
+    workspace:
+      host: https://<prod-workspace-host>.cloud.databricks.com
+    variables:
+      target_catalog: "prod_catalog" # Production ke liye catalog

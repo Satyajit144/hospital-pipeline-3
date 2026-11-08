@@ -1,0 +1,53 @@
+resources:
+  jobs:
+    hospital_medallion_job:
+      name: hospital_medallion_pipeline_job
+
+      # Sahi aur updated Serverless environment syntax
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "3"
+
+      tasks:
+        # 1. Bronze Ingestion Task
+        - task_key: bronze_task
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/bronze_ingestion.py
+            parameters:
+              - "--catalog"
+              - "${var.target_catalog}"
+
+        # 2. Schema Validation Task
+        - task_key: validation_task
+          environment_key: default
+          depends_on:
+            - task_key: bronze_task
+          spark_python_task:
+            python_file: ../src/schema_validation.py
+            parameters:
+              - "--catalog"
+              - "${var.target_catalog}"
+
+        # 3. Silver Transformation Task
+        - task_key: silver_task
+          environment_key: default
+          depends_on:
+            - task_key: validation_task
+          spark_python_task:
+            python_file: ../src/silver_transformation.py
+            parameters:
+              - "--catalog"
+              - "${var.target_catalog}"
+
+        # 4. Gold Aggregation Task
+        - task_key: gold_task
+          environment_key: default
+          depends_on:
+            - task_key: silver_task
+          spark_python_task:
+            python_file: ../src/gold_transformation.py
+            parameters:
+              - "--catalog"
+              - "${var.target_catalog}"
