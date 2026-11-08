@@ -18,26 +18,20 @@ jobs:
         run: |
           curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
 
-      # 1. Dev Branch deployment
+      # 1. Dev Branch Deployment
       - name: Deploy to Dev
         if: github.ref == 'refs/heads/dev'
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-        run: databricks bundle deploy --target dev
+        run: |
+          databricks bundle deploy --target dev --host "${{ secrets.DATABRICKS_HOST }}" --token "${{ secrets.DATABRICKS_TOKEN }}"
 
-      # 2. Validation Branch deployment
+      # 2. Validation Branch Deployment
       - name: Deploy to Validation
         if: github.ref == 'refs/heads/validation'
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-        run: databricks bundle deploy --target validation
+        run: |
+          databricks bundle deploy --target validation --host "${{ secrets.DATABRICKS_HOST }}" --token "${{ secrets.DATABRICKS_TOKEN }}"
 
-      # 3. Main (Production) Branch deployment
+      # 3. Main (Production) Branch Deployment
       - name: Deploy to Production
         if: github.ref == 'refs/heads/main'
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-        run: databricks bundle deploy --target prod
+        run: |
+          databricks bundle deploy --target prod --host "${{ secrets.DATABRICKS_HOST }}" --token "${{ secrets.DATABRICKS_TOKEN }}"

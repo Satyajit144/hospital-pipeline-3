@@ -4,32 +4,32 @@ bundle:
 include:
   - resources/*.yml
 
-# 1. Global Variables define karein (Default value ke sath)
+# 1. Global Variables define karein
 variables:
   target_catalog:
     description: "The Unity Catalog to use for this environment"
     default: "dev"
 
-# 2. Alag-alag Targets (Environments) define karein
+# 2. Targets (Environments)
 targets:
-  # --- DEV ENVIRONMENT (Sandbox) ---
+  # --- DEV ENVIRONMENT ---
   dev:
     default: true
     workspace:
       host: https://dbc-6e436782-452f.cloud.databricks.com
     variables:
-      target_catalog: "dev_catalog" # Dev ke liye catalog
+      target_catalog: "dev_catalog"
 
-  # --- VALIDATION ENVIRONMENT (Staging) ---
+  # --- VALIDATION ENVIRONMENT ---
   validation:
     workspace:
-      host: https://<validation-workspace-host>.cloud.databricks.com
+      host: https://dbc-6e436782-452f.cloud.databricks.com
     variables:
-      target_catalog: "val_catalog" # Validation ke liye catalog
+      target_catalog: "val_catalog"
 
-  # --- PRODUCTION ENVIRONMENT (Live) ---
+  # --- PRODUCTION ENVIRONMENT ---
   prod:
     workspace:
-      host: https://<prod-workspace-host>.cloud.databricks.com
+      host: https://dbc-6e436782-452f.cloud.databricks.com
     variables:
-      target_catalog: "prod_catalog" # Production ke liye catalog
+      target_catalog: "prod_catalog"
