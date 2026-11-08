@@ -10,7 +10,7 @@ from pyspark.sql.types import TimestampType
 
 # Argument parser configuration
 parser = argparse.ArgumentParser()
-parser.add_argument("--catalog", type=str, default="dev", help="Target Unity Catalog Name")
+parser.add_argument("--catalog", type=str, default="dev_catalog", help="Target Unity Catalog Name")
 args, unknown = parser.parse_known_args()
 
 target_catalog = args.catalog
@@ -40,7 +40,8 @@ try:
     )
 
     Logger.info("Enforcing Business Schema and ingesting data from Bronze")
-    df_Silver_raw = spark.read.schema(schema).table("dev.cro_schema.hospital_data_bronze")
+    # Dynamic catalog reference for bronze table
+    df_Silver_raw = spark.read.schema(schema).table(f"{target_catalog}.cro_schema.hospital_data_bronze")
 
     # 1. Quality Rules Definition
     is_valid_rule = (F.col("Patient_ID").isNotNull()) & (F.col("Age").between(1, 120))
@@ -63,13 +64,15 @@ try:
         }
     )
 
-    # 4. Write to Silver Table (SCD Type 2)
-    if not spark.catalog.tableExists("dev.cro_schema.cleaned_hospital_patients"):
+    # 4. Write to Silver Table (SCD Type 2) with Dynamic Catalog
+    cleaned_table_name = f"{target_catalog}.cro_schema.cleaned_hospital_patients"
+
+    if not spark.catalog.tableExists(cleaned_table_name):
         df_Silver_data.write.format("delta").mode("overwrite").option("mergeSchema", "true").option(
             "overwriteSchema", "true"
-        ).saveAsTable("dev.cro_schema.cleaned_hospital_patients")
+        ).saveAsTable(cleaned_table_name)
     else:
-        df_target = DeltaTable.forName(spark, "dev.cro_schema.cleaned_hospital_patients")
+        df_target = DeltaTable.forName(spark, cleaned_table_name)
         df_target.alias("t").merge(
             df_Silver_data.alias("s"), "t.Patient_ID = s.Patient_ID AND t.is_current = true"
         ).whenMatchedUpdate(
@@ -79,10 +82,9 @@ try:
 
     Logger.info("Data Successfully Ingested to Silver Layer Table")
 
-    # 5. Write Quarantine Data (Append Mode for Audit Trail)
-    df_Invalid_data.write.format("delta").mode("append").option("mergeSchema", "true").saveAsTable(
-        "dev.cro_schema.invalid_hospital_patients"
-    )
+    # 5. Write Quarantine Data (Append Mode for Audit Trail) with Dynamic Catalog
+    invalid_table_name = f"{target_catalog}.cro_schema.invalid_hospital_patients"
+    df_Invalid_data.write.format("delta").mode("append").option("mergeSchema", "true").saveAsTable(invalid_table_name)
     Logger.info("Quarantine Data Successfully Logged")
 
 except AnalysisException as ae:
