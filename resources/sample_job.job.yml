@@ -1,7 +1,7 @@
 resources:
   jobs:
     hospital_medallion_job:
-      name: hospital_medallion_pipeline_job
+      name: "hospital_medallion_pipeline_job_${bundle.target}"
 
       # Sahi aur updated Serverless environment syntax
       environments:
