@@ -21,17 +21,23 @@ jobs:
       # 1. Dev Branch Deployment
       - name: Deploy to Dev
         if: github.ref == 'refs/heads/dev'
-        run: |
-          databricks bundle deploy --target dev --host "${{ secrets.DATABRICKS_HOST }}" --token "${{ secrets.DATABRICKS_TOKEN }}"
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: databricks bundle deploy --target dev
 
       # 2. Validation Branch Deployment
       - name: Deploy to Validation
         if: github.ref == 'refs/heads/validation'
-        run: |
-          databricks bundle deploy --target validation --host "${{ secrets.DATABRICKS_HOST }}" --token "${{ secrets.DATABRICKS_TOKEN }}"
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: databricks bundle deploy --target validation
 
       # 3. Main (Production) Branch Deployment
       - name: Deploy to Production
         if: github.ref == 'refs/heads/main'
-        run: |
-          databricks bundle deploy --target prod --host "${{ secrets.DATABRICKS_HOST }}" --token "${{ secrets.DATABRICKS_TOKEN }}"
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: databricks bundle deploy --target prod
